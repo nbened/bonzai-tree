@@ -1,5 +1,5 @@
 {
-  "headlessClaude": true,
+  "headlessClaude": false,
   "autoBurn": false,
   "lineLimit": {
     "enabled": true,
