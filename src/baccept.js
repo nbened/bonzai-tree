@@ -35,9 +35,6 @@ async function accept() {
     // Merge burn branch into original
     execVisible(`git merge ${burnBranch} -m "Accept bonzai burn from ${burnBranch}"`);
 
-    // Delete burn branch
-    execVisible(`git branch -D ${burnBranch}`);
-
     // If we made a WIP commit, we need to handle it
     // The merge already includes the burn changes on top of the WIP commit
     // So we can optionally squash or leave as-is
@@ -51,7 +48,8 @@ async function accept() {
     exec('git config --unset bonzai.madeWipCommit');
 
     console.log(`\n✓ Burn accepted and merged`);
-    console.log(`Now on: ${originalBranch}\n`);
+    console.log(`Now on: ${originalBranch}`);
+    console.log(`Branch kept: ${burnBranch}\n`);
 
   } catch (error) {
     console.error('❌ Accept failed:', error.message);

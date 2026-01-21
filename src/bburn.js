@@ -15,6 +15,33 @@ const CONFIG_FILE = 'config.json';
 // Template folder in the package (ships as payload-bonzai, copied as bonzai)
 const TEMPLATE_DIR = join(__dirname, '..', 'payload-bonzai');
 
+// Parse --provider / -p argument
+function parseProvider() {
+  const args = process.argv.slice(2);
+  let provider = 'claude'; // default
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--provider' || args[i] === '-p') {
+      provider = args[i + 1];
+      break;
+    }
+    if (args[i].startsWith('--provider=')) {
+      provider = args[i].split('=')[1];
+      break;
+    }
+  }
+
+  const validProviders = ['claude', 'cursor'];
+  if (!validProviders.includes(provider)) {
+    console.error(`❌ Invalid provider: "${provider}". Must be one of: ${validProviders.join(', ')}`);
+    process.exit(1);
+  }
+
+  return provider;
+}
+
+const PROVIDER = parseProvider();
+
 function initializeBonzai() {
   const bonzaiPath = join(process.cwd(), BONZAI_DIR);
   const specsPath = join(bonzaiPath, SPECS_FILE);
@@ -251,6 +278,11 @@ function getToolIcon(toolName) {
   return icons[toolName] || '🔹';
 }
 
+function executeCursor(requirements, config) {
+  console.log('🔥 Burning through Cursor...');
+  return Promise.resolve();
+}
+
 async function burn() {
   try {
     // Initialize bonzai folder and specs.md on first execution
@@ -304,13 +336,20 @@ async function burn() {
     exec(`git config bonzai.madeWipCommit ${madeWipCommit}`);
 
     console.log(`📋 Specs loaded from: ${BONZAI_DIR}/${SPECS_FILE}`);
-    console.log(`⚙️  Headless mode: ${config.headlessClaude !== false ? 'on' : 'off'}`);
+    console.log(`🤖 Provider: ${PROVIDER}`);
+    if (PROVIDER === 'claude') {
+      console.log(`⚙️  Headless mode: ${config.headlessClaude !== false ? 'on' : 'off'}`);
+    }
     console.log('🔥 Running Bonzai burn...\n');
 
     const startTime = Date.now();
 
-    // Execute Claude with specs from bonzai/specs.md
-    await executeClaude(specs, config);
+    // Execute with the selected provider
+    if (PROVIDER === 'cursor') {
+      await executeCursor(specs, config);
+    } else {
+      await executeClaude(specs, config);
+    }
 
     const duration = Math.round((Date.now() - startTime) / 1000);
 
