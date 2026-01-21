@@ -1,4 +1,6 @@
 {
   "headlessClaude": true,
-  "autoBurn": false
+  "autoBurn": false,
+  "lineLimit": 70,
+  "folderLimit": 10
 }
