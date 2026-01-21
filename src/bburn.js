@@ -36,7 +36,7 @@ function initializeBonzai() {
   if (!fs.existsSync(configPath)) {
     fs.copyFileSync(join(TEMPLATE_DIR, CONFIG_FILE), configPath);
     console.log(`⚙️  Created ${BONZAI_DIR}/${CONFIG_FILE}`);
-    console.log(`\n⚠️  Please edit ${BONZAI_DIR}/${SPECS_FILE} to define your cleanup rules before running btrim.\n`);
+    console.log(`\n⚠️  Please edit ${BONZAI_DIR}/${SPECS_FILE} to define your cleanup rules before running bburn.\n`);
     process.exit(0);
   }
 }
@@ -233,7 +233,7 @@ async function burn() {
   try {
     // Initialize bonzai folder and specs.md on first execution
     initializeBonzai();
-    
+
     // Ensure bonzai directory and specs file exist
     const { specsPath, configPath } = ensureBonzaiDir();
     const specs = loadSpecs(specsPath);
@@ -304,7 +304,7 @@ async function burn() {
 
     console.log(`\n✅ Changes applied on: ${burnBranch}`);
     console.log(`📊 Full diff: git diff ${originalBranch}`);
-    console.log(`\n✓ Keep changes: git checkout ${originalBranch} && git merge ${burnBranch}`);
+    console.log(`\n✓ Keep changes: baccept`);
     console.log(`✗ Discard: brevert\n`);
 
   } catch (error) {

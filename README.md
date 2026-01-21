@@ -12,10 +12,10 @@ Requires: [Claude Code CLI](https://github.com/anthropics/claude-code)
 
 ## Usage
 
-### 1. Run cleanup
+### 1. Run burn
 
 ```bash
-npx btrim
+npx bburn
 ```
 
 Creates `bonzai/specs.md` on first run. Edit it to define your cleanup rules.
@@ -26,11 +26,11 @@ Creates `bonzai/specs.md` on first run. Edit it to define your cleanup rules.
 git diff main
 ```
 
-### 3. Keep or discard
+### 3. Accept or discard
 
 ```bash
-# Keep
-git checkout main && git merge bonzai-burn
+# Accept
+baccept
 
 # Discard
 brevert

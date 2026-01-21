@@ -9,7 +9,7 @@ function execVisible(command) {
   execSync(command, { stdio: 'inherit' });
 }
 
-async function revert() {
+async function accept() {
   try {
     // Get saved metadata
     let originalBranch;
@@ -21,25 +21,28 @@ async function revert() {
       burnBranch = exec('git config bonzai.burnBranch');
       madeWipCommit = exec('git config bonzai.madeWipCommit') === 'true';
     } catch {
-      console.error('❌ No burn to revert');
+      console.error('❌ No burn to accept');
       console.error('Run bburn first');
       process.exit(1);
     }
 
-    console.log(`🔙 Reverting burn...`);
-    console.log(`   Discarding: ${burnBranch}\n`);
+    console.log(`✅ Accepting burn changes...`);
+    console.log(`   Merging: ${burnBranch} → ${originalBranch}\n`);
 
     // Checkout original branch
     execVisible(`git checkout ${originalBranch}`);
 
+    // Merge burn branch into original
+    execVisible(`git merge ${burnBranch} -m "Accept bonzai burn from ${burnBranch}"`);
+
     // Delete burn branch
     execVisible(`git branch -D ${burnBranch}`);
 
-    // Undo WIP commit if we made one
+    // If we made a WIP commit, we need to handle it
+    // The merge already includes the burn changes on top of the WIP commit
+    // So we can optionally squash or leave as-is
     if (madeWipCommit) {
-      console.log('↩️  Undoing WIP commit...');
-      exec('git reset HEAD~1');
-      console.log('✓ Back to uncommitted changes\n');
+      console.log('\n💡 Note: Your pre-burn WIP commit was preserved in the history.');
     }
 
     // Clean up metadata
@@ -47,13 +50,13 @@ async function revert() {
     exec('git config --unset bonzai.burnBranch');
     exec('git config --unset bonzai.madeWipCommit');
 
-    console.log(`✓ Burn fully reverted`);
-    console.log(`Back on: ${originalBranch}\n`);
+    console.log(`\n✓ Burn accepted and merged`);
+    console.log(`Now on: ${originalBranch}\n`);
 
   } catch (error) {
-    console.error('❌ Revert failed:', error.message);
+    console.error('❌ Accept failed:', error.message);
     process.exit(1);
   }
 }
 
-revert();
+accept();

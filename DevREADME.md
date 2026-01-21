@@ -3,7 +3,8 @@
 ## Test locally
 
 ```bash
-node src/btrim.js
+node src/bburn.js
+node src/baccept.js
 node src/brevert.js
 ```
 
@@ -11,7 +12,8 @@ Or link globally:
 
 ```bash
 npm link
-btrim
+bburn
+baccept
 brevert
 ```
 
@@ -19,6 +21,6 @@ brevert
 
 ```bash
 npm login
-npm version patch  # pumps version number uatomtically
+npm version patch  # pumps version number automatically
 npm publish
 ```

@@ -23,7 +23,7 @@ function init() {
   copyFileSync(join(TEMPLATE_DIR, 'config.json'), join(bonzaiPath, 'config.json'));
   console.log(`📁 Created ${BONZAI_DIR}/ folder with specs.md and config.json`);
   console.log(`📝 Edit ${BONZAI_DIR}/specs.md to define your cleanup rules`);
-  console.log(`🔥 Run 'btrim' to start a cleanup session`);
+  console.log(`🔥 Run 'bburn' to start a burn session`);
 }
 
 init();
