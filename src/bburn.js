@@ -298,7 +298,7 @@ function executeCursor(requirements, config) {
   if (debugMode) {
     console.log('🐛 Running in debug mode...\n');
     return new Promise((resolve, reject) => {
-      const args = ['-p', requirements, '--verbose'];
+      const args = ['-p', requirements];
 
       const cursor = spawn('cursor-agent', args, {
         stdio: 'inherit'
