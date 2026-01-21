@@ -125,6 +125,7 @@ function executeClaude(requirements, config) {
     console.log('🖥️  Running in interactive mode...\n');
     return new Promise((resolve, reject) => {
       const args = [
+        '-p', requirements,
         '--allowedTools', 'Read,Write,Edit,Bash',
         '--permission-mode', 'dontAsk'
       ];
