@@ -2,24 +2,45 @@
 import { execSync, spawn } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const BONZAI_DIR = 'bonzai';
 const SPECS_FILE = 'specs.md';
+const CONFIG_FILE = 'config.json';
+
+// Template folder in the package
+const TEMPLATE_DIR = join(__dirname, '..', 'bonzai');
+
+function getTemplate(filename) {
+  const templatePath = join(TEMPLATE_DIR, filename);
+  if (fs.existsSync(templatePath)) {
+    return fs.readFileSync(templatePath, 'utf-8');
+  }
+  return null;
+}
 
 const DEFAULT_SPECS = `# Bonzai Specs
 
 Define your cleanup requirements below. btrim will follow these instructions.
 
-## Example:
+## Requirements:
 - Remove unused imports
 - Delete files matching pattern "*.tmp"
 - Clean up console.log statements
 `;
 
+const DEFAULT_CONFIG = {
+  headlessClaude: true
+};
+
 function initializeBonzai() {
   const bonzaiPath = join(process.cwd(), BONZAI_DIR);
   const specsPath = join(bonzaiPath, SPECS_FILE);
+  const configPath = join(bonzaiPath, CONFIG_FILE);
 
   // Check if bonzai/ folder exists
   if (!fs.existsSync(bonzaiPath)) {
@@ -28,10 +49,18 @@ function initializeBonzai() {
     console.log(`📁 Created ${BONZAI_DIR}/ folder`);
   }
 
-  // Generate bonzai/specs.md with template
+  // Generate bonzai/specs.md from package template
   if (!fs.existsSync(specsPath)) {
-    fs.writeFileSync(specsPath, DEFAULT_SPECS);
+    const specsContent = getTemplate(SPECS_FILE) || DEFAULT_SPECS;
+    fs.writeFileSync(specsPath, specsContent);
     console.log(`📝 Created ${BONZAI_DIR}/${SPECS_FILE}`);
+  }
+
+  // Generate bonzai/config.json from package template
+  if (!fs.existsSync(configPath)) {
+    const configContent = getTemplate(CONFIG_FILE) || JSON.stringify(DEFAULT_CONFIG, null, 2) + '\n';
+    fs.writeFileSync(configPath, configContent);
+    console.log(`⚙️  Created ${BONZAI_DIR}/${CONFIG_FILE}`);
     console.log(`\n⚠️  Please edit ${BONZAI_DIR}/${SPECS_FILE} to define your cleanup rules before running btrim.\n`);
     process.exit(0);
   }
@@ -40,6 +69,7 @@ function initializeBonzai() {
 function ensureBonzaiDir() {
   const bonzaiPath = join(process.cwd(), BONZAI_DIR);
   const specsPath = join(bonzaiPath, SPECS_FILE);
+  const configPath = join(bonzaiPath, CONFIG_FILE);
 
   if (!fs.existsSync(bonzaiPath)) {
     fs.mkdirSync(bonzaiPath, { recursive: true });
@@ -47,11 +77,27 @@ function ensureBonzaiDir() {
   }
 
   if (!fs.existsSync(specsPath)) {
-    fs.writeFileSync(specsPath, DEFAULT_SPECS);
+    const specsContent = getTemplate(SPECS_FILE) || DEFAULT_SPECS;
+    fs.writeFileSync(specsPath, specsContent);
     console.log(`📝 Created ${BONZAI_DIR}/${SPECS_FILE} - edit this file to define your cleanup specs\n`);
   }
 
-  return specsPath;
+  if (!fs.existsSync(configPath)) {
+    const configContent = getTemplate(CONFIG_FILE) || JSON.stringify(DEFAULT_CONFIG, null, 2) + '\n';
+    fs.writeFileSync(configPath, configContent);
+    console.log(`⚙️  Created ${BONZAI_DIR}/${CONFIG_FILE}\n`);
+  }
+
+  return { specsPath, configPath };
+}
+
+function loadConfig(configPath) {
+  try {
+    const content = fs.readFileSync(configPath, 'utf-8');
+    return { ...DEFAULT_CONFIG, ...JSON.parse(content) };
+  } catch {
+    return DEFAULT_CONFIG;
+  }
 }
 
 function loadSpecs(specsPath) {
@@ -67,7 +113,7 @@ function execVisible(command) {
   execSync(command, { stdio: 'inherit' });
 }
 
-function executeClaude(requirements) {
+function executeClaude(requirements, config) {
   // Check if Claude CLI exists
   try {
     execSync('which claude', { encoding: 'utf-8', stdio: 'pipe' });
@@ -78,12 +124,39 @@ function executeClaude(requirements) {
     );
   }
 
-  // Track token usage
+  const headless = config.headlessClaude !== false;
+
+  // Non-headless mode: run Claude interactively
+  if (!headless) {
+    console.log('🖥️  Running in interactive mode...\n');
+    return new Promise((resolve, reject) => {
+      const args = [
+        '--allowedTools', 'Read,Write,Edit,Bash',
+        '--permission-mode', 'dontAsk'
+      ];
+
+      const claude = spawn('claude', args, {
+        stdio: 'inherit'
+      });
+
+      claude.on('close', (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`Claude exited with code ${code}`));
+        }
+      });
+
+      claude.on('error', (err) => {
+        reject(new Error(`Failed to execute Claude: ${err.message}`));
+      });
+    });
+  }
+
+  // Headless mode with token tracking
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
   let lastToolName = '';
-
-  // Execute Claude with streaming JSON output
 
   return new Promise((resolve, reject) => {
     const args = [
@@ -189,8 +262,9 @@ async function burn() {
     initializeBonzai();
     
     // Ensure bonzai directory and specs file exist
-    const specsPath = ensureBonzaiDir();
+    const { specsPath, configPath } = ensureBonzaiDir();
     const specs = loadSpecs(specsPath);
+    const config = loadConfig(configPath);
 
     // Check if Claude CLI exists and execute
     console.log('🔍 Checking for Claude Code CLI...');
@@ -235,12 +309,13 @@ async function burn() {
     exec(`git config bonzai.madeWipCommit ${madeWipCommit}`);
 
     console.log(`📋 Specs loaded from: ${BONZAI_DIR}/${SPECS_FILE}`);
+    console.log(`⚙️  Headless mode: ${config.headlessClaude !== false ? 'on' : 'off'}`);
     console.log('🔥 Running Bonzai burn...\n');
 
     const startTime = Date.now();
 
     // Execute Claude with specs from bonzai/specs.md
-    await executeClaude(specs);
+    await executeClaude(specs, config);
 
     const duration = Math.round((Date.now() - startTime) / 1000);
 
