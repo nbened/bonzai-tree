@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { execSync } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import { join } from 'path';
 
@@ -67,27 +67,118 @@ function execVisible(command) {
 }
 
 function executeClaude(requirements) {
+  // Check if Claude CLI exists
   try {
-    // Check if Claude CLI exists
-    try {
-      execSync('which claude', { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (error) {
-      throw new Error(
-        'Claude Code CLI not found.\n' +
-        'Install it with: npm install -g @anthropic-ai/claude-code'
-      );
-    }
-
-    // Execute Claude with requirements
-    const command = `claude -p "${requirements.replace(/"/g, '\\"')}" --allowedTools "Read,Write,Edit,Bash" --permission-mode dontAsk`;
-    const result = execSync(command, { stdio: 'inherit', encoding: 'utf-8' });
-    return result;
+    execSync('which claude', { encoding: 'utf-8', stdio: 'pipe' });
   } catch (error) {
-    if (error.message.includes('Claude Code CLI not found')) {
-      throw error;
-    }
-    throw new Error(`Failed to execute Claude: ${error.message}`);
+    throw new Error(
+      'Claude Code CLI not found.\n' +
+      'Install it with: npm install -g @anthropic-ai/claude-code'
+    );
   }
+
+  // Track token usage
+  let totalInputTokens = 0;
+  let totalOutputTokens = 0;
+  let lastToolName = '';
+
+  // Execute Claude with streaming JSON output
+
+  return new Promise((resolve, reject) => {
+    const args = [
+      '-p', requirements,
+      '--allowedTools', 'Read,Write,Edit,Bash',
+      '--permission-mode', 'dontAsk',
+      '--output-format', 'stream-json'
+    ];
+
+    const claude = spawn('claude', args, {
+      stdio: ['inherit', 'pipe', 'pipe']
+    });
+
+    let buffer = '';
+
+    claude.stdout.on('data', (data) => {
+      buffer += data.toString();
+
+      // Process complete JSON lines
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // Keep incomplete line in buffer
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+
+        try {
+          const event = JSON.parse(line);
+
+          // Track tokens from assistant messages
+          if (event.type === 'assistant' && event.message?.usage) {
+            const usage = event.message.usage;
+            if (usage.input_tokens) totalInputTokens += usage.input_tokens;
+            if (usage.output_tokens) totalOutputTokens += usage.output_tokens;
+          }
+
+          // Show tool usage updates
+          if (event.type === 'content_block_start' && event.content_block?.type === 'tool_use') {
+            lastToolName = event.content_block.name || '';
+          }
+
+          if (event.type === 'content_block_stop' && lastToolName) {
+            const icon = getToolIcon(lastToolName);
+            console.log(`  ${icon} ${lastToolName}`);
+            lastToolName = '';
+          }
+
+          // Show result events with file info
+          if (event.type === 'result') {
+            if (event.usage) {
+              // Final usage stats
+              totalInputTokens = event.usage.input_tokens || totalInputTokens;
+              totalOutputTokens = event.usage.output_tokens || totalOutputTokens;
+            }
+          }
+
+        } catch (e) {
+          // Not valid JSON, skip
+        }
+      }
+    });
+
+    claude.stderr.on('data', (data) => {
+      // Show errors but don't clutter with minor stderr
+      const msg = data.toString().trim();
+      if (msg && !msg.includes('ExperimentalWarning')) {
+        console.error(msg);
+      }
+    });
+
+    claude.on('close', (code) => {
+      // Print token summary
+      console.log(`\n📊 Tokens: ${totalInputTokens.toLocaleString()} in / ${totalOutputTokens.toLocaleString()} out`);
+
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Claude exited with code ${code}`));
+      }
+    });
+
+    claude.on('error', (err) => {
+      reject(new Error(`Failed to execute Claude: ${err.message}`));
+    });
+  });
+}
+
+function getToolIcon(toolName) {
+  const icons = {
+    'Read': '📖',
+    'Write': '✏️',
+    'Edit': '🔧',
+    'Bash': '💻',
+    'Glob': '🔍',
+    'Grep': '🔎'
+  };
+  return icons[toolName] || '🔹';
 }
 
 async function burn() {
@@ -154,7 +245,7 @@ async function burn() {
     const startTime = Date.now();
 
     // Execute Claude with specs from bonzai/specs.md
-    executeClaude(specs);
+    await executeClaude(specs);
 
     const duration = Math.round((Date.now() - startTime) / 1000);
 
