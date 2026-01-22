@@ -61,38 +61,9 @@ function checkoutBranch(req, res) {
       return res.status(400).json({ error: 'Invalid branch name' });
     }
 
-    // Check if we have uncommitted changes
-    let hasChanges = false;
-    try {
-      const status = execSync('git status --porcelain', { encoding: 'utf-8' });
-      hasChanges = status.trim().length > 0;
-    } catch (e) {
-      // Ignore errors checking status
-    }
-
-    let savedToBranch = null;
-
-    if (hasChanges) {
-      // Get current branch name
-      const currentBranch = execSync('git branch --show-current', { encoding: 'utf-8' }).trim();
-      
-      // Create a save branch name with timestamp
-      const timestamp = Date.now();
-      savedToBranch = `bonzai-save-${currentBranch}-${timestamp}`;
-      
-      // Create new branch, add all changes, and commit
-      execSync(`git checkout -b ${savedToBranch}`, { encoding: 'utf-8' });
-      execSync('git add -A', { encoding: 'utf-8' });
-      execSync(`git commit -m "Auto-save before switching to ${branchName}"`, { encoding: 'utf-8' });
-    }
-
-    // Now checkout the target branch
     execSync(`git checkout ${branchName}`, { encoding: 'utf-8' });
 
-    res.json({ 
-      checkedOut: branchName,
-      savedToBranch: savedToBranch 
-    });
+    res.json({ checkedOut: branchName });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
