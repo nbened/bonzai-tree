@@ -9,6 +9,9 @@ function indexHandler(req, res) {
       'POST /open-cursor': 'Open Cursor (body: {path, line?})',
       'POST /shutdown': 'Gracefully shutdown the server',
       'POST /scan_code_quality': 'Scan code quality (body: {projectPath})',
+      'POST /write': 'Write file content (body: {path, content})',
+      'GET /git/burns': 'List all bonzai-burn branches',
+      'POST /git/checkout': 'Checkout a branch (body: {branchName})',
       'WS /terminal': 'Interactive terminal via WebSocket'
     },
     example: 'Try: /list or /read?path=README.md'
