@@ -27,7 +27,7 @@ function createTerminal(sessionId, cols = 80, rows = 24) {
   }
 
   const shell = getDefaultShell();
-  const cwd = process.env.HOME || process.cwd();
+  const cwd = process.env.BONZAI_REPO_DIR || process.cwd();
 
   let ptyProcess;
   try {
