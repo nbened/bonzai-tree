@@ -101,6 +101,8 @@ async function main() {
   packageJson.dependencies.express = "^4.18.2";
   packageJson.dependencies.cors = "^2.8.5";
   packageJson.dependencies["@babel/parser"] = "^7.23.0";
+  packageJson.dependencies.ws = "^8.14.2";
+  packageJson.dependencies["node-pty"] = "^1.0.0";
 
   // Add script to run receiver
   if (!packageJson.scripts) {
@@ -121,9 +123,27 @@ async function main() {
 
     npm.on('close', (code) => {
       if (code === 0) {
+        // Fix node-pty spawn-helper permissions (npm doesn't preserve execute bits)
+        const nodePtyPrebuilds = path.join(bonzaiDir, 'node_modules', 'node-pty', 'prebuilds');
+        if (fs.existsSync(nodePtyPrebuilds)) {
+          const archDirs = ['darwin-arm64', 'darwin-x64', 'linux-x64', 'linux-arm64'];
+          for (const arch of archDirs) {
+            const spawnHelperPath = path.join(nodePtyPrebuilds, arch, 'spawn-helper');
+            if (fs.existsSync(spawnHelperPath)) {
+              try {
+                fs.chmodSync(spawnHelperPath, '755');
+                console.log(`Fixed node-pty spawn-helper permissions (${arch})`);
+              } catch (e) {
+                console.warn(`Warning: Could not fix spawn-helper permissions for ${arch}:`, e.message);
+              }
+            }
+          }
+        }
+
         console.log('\nListener endpoints successfully deployed');
         console.log('All code stays on your machine\n');
         console.log('Relay server running on localhost:3001');
+        console.log('Terminal WebSocket available at ws://localhost:3001/terminal');
         console.log('Diagram available at https://bonzai.dev/\n');
 
         // Start the server automatically
