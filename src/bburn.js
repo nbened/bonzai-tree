@@ -34,8 +34,6 @@ async function main() {
   // Load config - source of truth
   const config = loadConfig();
 
-  console.log('Scanning...\n');
-
   // Run analysis
   const results = await analyze(process.cwd(), config);
   const { output, totalIssues } = formatAnalysisResults(results);

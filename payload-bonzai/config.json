@@ -2,6 +2,13 @@
   "customChecks": {
     "requirements": "Remove unused imports and variables. Remove all console log statements."
   },
+  "eslint": {
+    "enabled": true,
+    "rules": ["no-unused-vars"]
+  },
+  "typescript": {
+    "enabled": true
+  },
   "lineLimit": {
     "enabled": true,
     "limit": 300,

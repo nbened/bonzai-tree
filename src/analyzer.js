@@ -8,6 +8,92 @@ import path from 'path';
  */
 
 /**
+ * Check if a command exists
+ */
+function commandExists(cmd) {
+  try {
+    execSync(`which ${cmd}`, { encoding: 'utf-8', stdio: 'pipe' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Check if package is installed locally
+ */
+function isInstalledLocally(pkg, rootDir) {
+  return fs.existsSync(path.join(rootDir, 'node_modules', pkg));
+}
+
+/**
+ * Install a package as dev dependency
+ */
+function installPackage(pkg, rootDir) {
+  try {
+    console.log(`   Installing ${pkg}...`);
+    execSync(`cd "${rootDir}" && npm install --save-dev ${pkg}`, {
+      encoding: 'utf-8',
+      stdio: 'pipe'
+    });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Ensure ESLint is available
+ */
+function ensureEslint(rootDir, config) {
+  const cfg = config.eslint || {};
+  if (!cfg.enabled) {
+    return { available: false, reason: 'Disabled in config' };
+  }
+
+  // Check if eslint exists globally or locally
+  if (commandExists('eslint') || isInstalledLocally('eslint', rootDir)) {
+    return { available: true };
+  }
+
+  // Try to install
+  console.log('📦 ESLint not found, installing...');
+  if (installPackage('eslint', rootDir)) {
+    return { available: true, installed: true };
+  }
+
+  return { available: false, reason: 'Failed to install ESLint' };
+}
+
+/**
+ * Ensure TypeScript is available
+ */
+function ensureTypeScript(rootDir, config) {
+  const cfg = config.typescript || {};
+  if (!cfg.enabled) {
+    return { available: false, reason: 'Disabled in config' };
+  }
+
+  // Check if tsconfig exists (otherwise no point)
+  if (!fs.existsSync(path.join(rootDir, 'tsconfig.json'))) {
+    return { available: false, reason: 'No tsconfig.json found' };
+  }
+
+  // Check if tsc exists globally or locally
+  if (commandExists('tsc') || isInstalledLocally('typescript', rootDir)) {
+    return { available: true };
+  }
+
+  // Try to install
+  console.log('📦 TypeScript not found, installing...');
+  if (installPackage('typescript', rootDir)) {
+    return { available: true, installed: true };
+  }
+
+  return { available: false, reason: 'Failed to install TypeScript' };
+}
+
+/**
  * List all files recursively, respecting common ignore patterns
  */
 function listAllFiles(dir, basePath = '') {
@@ -44,18 +130,26 @@ function listAllFiles(dir, basePath = '') {
 /**
  * Run ESLint to detect unused imports and variables
  */
-function runEslintAnalysis(rootDir) {
+function runEslintAnalysis(rootDir, config) {
   const issues = [];
+  const cfg = config.eslint || {};
 
-  try {
-    execSync('which eslint', { encoding: 'utf-8', stdio: 'pipe' });
-  } catch {
-    return { issues, skipped: true, reason: 'ESLint not installed' };
+  if (!cfg.enabled) {
+    return { issues, skipped: true, reason: 'Disabled in config' };
   }
+
+  // Build rules from config
+  const rules = cfg.rules || ['no-unused-vars'];
+  const ruleArgs = rules.map(r => `--rule "${r}: error"`).join(' ');
+
+  // Try local eslint first, then global
+  const eslintCmd = isInstalledLocally('eslint', rootDir)
+    ? `"${path.join(rootDir, 'node_modules', '.bin', 'eslint')}"`
+    : 'eslint';
 
   try {
     const result = execSync(
-      `eslint "${rootDir}" --format json --rule "no-unused-vars: error" 2>/dev/null || true`,
+      `${eslintCmd} "${rootDir}" --format json ${ruleArgs} --ignore-pattern node_modules --ignore-pattern bonzai 2>/dev/null || true`,
       { encoding: 'utf-8', stdio: 'pipe', maxBuffer: 50 * 1024 * 1024 }
     );
 
@@ -64,7 +158,7 @@ function runEslintAnalysis(rootDir) {
 
       for (const file of eslintOutput) {
         for (const msg of file.messages || []) {
-          if (msg.ruleId && msg.ruleId.includes('no-unused')) {
+          if (msg.ruleId && rules.some(r => msg.ruleId.includes(r.replace('no-', '')))) {
             issues.push({
               file: path.relative(rootDir, file.filePath),
               line: msg.line,
@@ -85,23 +179,27 @@ function runEslintAnalysis(rootDir) {
 /**
  * Run TypeScript compiler to check for unused locals
  */
-function runTypeScriptAnalysis(rootDir) {
+function runTypeScriptAnalysis(rootDir, config) {
   const issues = [];
-  const tsconfigPath = path.join(rootDir, 'tsconfig.json');
+  const cfg = config.typescript || {};
 
+  if (!cfg.enabled) {
+    return { issues, skipped: true, reason: 'Disabled in config' };
+  }
+
+  const tsconfigPath = path.join(rootDir, 'tsconfig.json');
   if (!fs.existsSync(tsconfigPath)) {
     return { issues, skipped: true, reason: 'No tsconfig.json found' };
   }
 
-  try {
-    execSync('which tsc', { encoding: 'utf-8', stdio: 'pipe' });
-  } catch {
-    return { issues, skipped: true, reason: 'TypeScript not installed' };
-  }
+  // Try local tsc first, then global
+  const tscCmd = isInstalledLocally('typescript', rootDir)
+    ? `"${path.join(rootDir, 'node_modules', '.bin', 'tsc')}"`
+    : 'tsc';
 
   try {
     const result = execSync(
-      `cd "${rootDir}" && tsc --noEmit --noUnusedLocals --noUnusedParameters 2>&1 || true`,
+      `cd "${rootDir}" && ${tscCmd} --noEmit --noUnusedLocals --noUnusedParameters 2>&1 || true`,
       { encoding: 'utf-8', stdio: 'pipe', maxBuffer: 50 * 1024 * 1024 }
     );
 
@@ -256,10 +354,42 @@ function checkMissingTests(files, config) {
 export async function analyze(rootDir = process.cwd(), config = {}) {
   const startTime = Date.now();
   const files = listAllFiles(rootDir);
+  const toolStatus = {};
 
-  // Run all checks
-  const eslint = runEslintAnalysis(rootDir);
-  const typescript = runTypeScriptAnalysis(rootDir);
+  // Ensure tools are available (auto-install if needed)
+  console.log('🔧 Checking tools...');
+
+  const eslintStatus = ensureEslint(rootDir, config);
+  toolStatus.eslint = eslintStatus;
+  if (eslintStatus.installed) {
+    console.log('   ✓ ESLint installed');
+  } else if (eslintStatus.available) {
+    console.log('   ✓ ESLint ready');
+  } else if (config.eslint?.enabled) {
+    console.log(`   ✗ ESLint: ${eslintStatus.reason}`);
+  }
+
+  const tsStatus = ensureTypeScript(rootDir, config);
+  toolStatus.typescript = tsStatus;
+  if (tsStatus.installed) {
+    console.log('   ✓ TypeScript installed');
+  } else if (tsStatus.available) {
+    console.log('   ✓ TypeScript ready');
+  } else if (config.typescript?.enabled) {
+    console.log(`   ✗ TypeScript: ${tsStatus.reason}`);
+  }
+
+  console.log('');
+
+  // Run checks
+  const eslint = eslintStatus.available
+    ? runEslintAnalysis(rootDir, config)
+    : { issues: [], skipped: true, reason: eslintStatus.reason };
+
+  const typescript = tsStatus.available
+    ? runTypeScriptAnalysis(rootDir, config)
+    : { issues: [], skipped: true, reason: tsStatus.reason };
+
   const lineLimit = checkLineLimits(files, config);
   const folderLimit = checkFolderLimits(files, config);
   const missingTests = checkMissingTests(files, config);
@@ -274,7 +404,8 @@ export async function analyze(rootDir = process.cwd(), config = {}) {
     missingTests,
     customRequirements: config.customChecks?.requirements || null,
     filesScanned: files.length,
-    durationMs: duration
+    durationMs: duration,
+    toolStatus
   };
 }
 
