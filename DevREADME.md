@@ -2,6 +2,25 @@
 
 ## Test locally
 
+
+
+## Test in another repo
+
+rm -rf bonzai/                                             
+npx bonzai-burn@latest
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```bash
 node src/bburn.js
 node src/baccept.js

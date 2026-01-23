@@ -20,7 +20,8 @@
   },
   "files": [
     "src",
-    "payload-bonzai"
+    "payload-bonzai",
+    "graph-templates"
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.3"
