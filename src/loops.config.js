@@ -2,7 +2,7 @@
 // Tree-shaking removes disabled loops from the bundle
 export const CHANNELS = {
   dev: ['burn', 'visualization', 'backend'],
-  beta: ['burn', 'visualization', 'backend'],
+  beta: ['burn', 'visualization'],
   stable: ['burn']
 }
 

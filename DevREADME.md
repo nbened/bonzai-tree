@@ -1,8 +1,23 @@
 # Dev Guide
 
-## Test locally
+Users install with:     
 npm cache clean --force
-rm -rf bonzai                                    
+rm -rf bonzai                                                                                                                                               
+npx bonzai-burn@latest   # stable (default)                                                                                                               
+npx bonzai-burn@beta     # beta channel                                                                                                                   
+npx bonzai-burn@dev      # dev channel                                                                                                                    
+                                                                                                                                                        
+Typical workflow:                                                                                                                                         
+1. Develop features on dev: npm run release:dev                                                                                                           
+2. Promote to beta for testing: npm run release:beta                                                                                                      
+3. Promote to stable: npm run release    
+
+
+
+
+
+## Test locally
+                       
 npx bonzai-burn@latest
 
 

@@ -13,6 +13,20 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
+
+// src/loops.config.js
+var CHANNELS, channel, ENABLED_LOOPS;
+var init_loops_config = __esm({
+  "src/loops.config.js"() {
+    CHANNELS = {
+      dev: ["burn", "visualization", "backend"],
+      beta: ["burn", "visualization"],
+      stable: ["burn"]
+    };
+    channel = "dev";
+    ENABLED_LOOPS = CHANNELS[channel];
+  }
+});
 function commandExists(cmd) {
   try {
     execSync(`which ${cmd}`, { encoding: "utf-8", stdio: "pipe" });
@@ -677,9 +691,26 @@ async function main3() {
   const configContent = fs4.readFileSync(path2.join(TEMPLATE_DIR, "config.js"), "utf8");
   fs4.writeFileSync(path2.join(bonzaiDir, "config.js"), configContent);
   console.log("Copying handlers...");
-  const handlersSrc = path2.join(TEMPLATE_DIR, "handlers");
   const handlersDest = path2.join(bonzaiDir, "handlers");
-  copyDirectory(handlersSrc, handlersDest);
+  if (!fs4.existsSync(handlersDest)) {
+    fs4.mkdirSync(handlersDest, { recursive: true });
+  }
+  if (ENABLED_LOOPS.includes("visualization")) {
+    const vizSrc = path2.join(TEMPLATE_DIR, "loops", "visualization");
+    if (fs4.existsSync(vizSrc)) {
+      for (const file of fs4.readdirSync(vizSrc)) {
+        fs4.copyFileSync(path2.join(vizSrc, file), path2.join(handlersDest, file));
+      }
+    }
+  }
+  if (ENABLED_LOOPS.includes("backend")) {
+    const backendSrc = path2.join(TEMPLATE_DIR, "loops", "backend");
+    if (fs4.existsSync(backendSrc)) {
+      for (const file of fs4.readdirSync(backendSrc)) {
+        fs4.copyFileSync(path2.join(backendSrc, file), path2.join(handlersDest, file));
+      }
+    }
+  }
   console.log("Copying utils...");
   const utilsSrc = path2.join(TEMPLATE_DIR, "utils");
   const utilsDest = path2.join(bonzaiDir, "utils");
@@ -787,9 +818,10 @@ Server stopped with code ${serverCode}`);
 var __filename$1, __dirname$1, TEMPLATE_DIR, _a3, isDirectRun3;
 var init_bconfig = __esm({
   "src/bconfig.js"() {
+    init_loops_config();
     __filename$1 = fileURLToPath(import.meta.url);
     __dirname$1 = path2.dirname(__filename$1);
-    TEMPLATE_DIR = path2.join(__dirname$1, "..", "graph-templates");
+    TEMPLATE_DIR = path2.join(__dirname$1, "graph-templates");
     isDirectRun3 = (_a3 = process.argv[1]) == null ? void 0 : _a3.endsWith("bconfig.js");
     if (isDirectRun3) {
       main3().catch(console.error);
@@ -797,16 +829,8 @@ var init_bconfig = __esm({
   }
 });
 
-// src/loops.config.js
-var CHANNELS = {
-  dev: ["burn", "visualization", "backend"],
-  beta: ["burn", "visualization", "backend"],
-  stable: ["burn"]
-};
-var channel = "stable";
-var ENABLED_LOOPS = CHANNELS[channel];
-
 // src/index.js
+init_loops_config();
 var __filename2 = fileURLToPath(import.meta.url);
 var __dirname2 = dirname(__filename2);
 var BONZAI_DIR3 = "bonzai";

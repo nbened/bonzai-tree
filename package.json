@@ -14,7 +14,10 @@
     "build": "RELEASE_CHANNEL=stable tsup",
     "build:beta": "RELEASE_CHANNEL=beta tsup",
     "build:dev": "RELEASE_CHANNEL=dev tsup",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "release": "npm version patch && npm publish",
+    "release:beta": "npm run build:beta && npm publish --tag beta --ignore-scripts",
+    "release:dev": "npm run build:dev && npm publish --tag dev --ignore-scripts"
   },
   "keywords": [
     "git",
