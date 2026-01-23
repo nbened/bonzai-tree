@@ -2,13 +2,16 @@
   "provider": "claude",
   "debugMode": true,
   "autoBurn": false,
+  "customChecks": {
+    "requirements": "Remove unused imports and variables. Remove all console log statements."
+  },
   "lineLimit": {
-    "enabled": false,
+    "enabled": true,
     "limit": 70,
     "prompt": "Split any file with over {{ linelimit }} lines into smaller files."
   },
   "folderLimit": {
-    "enabled": false,
+    "enabled": true,
     "limit": 10,
     "prompt": "Split any folder with over {{ folderlimit }} items into smaller, compartmentalized folders."
   }
