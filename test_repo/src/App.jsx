@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'  // useEffect is unused
 import './App.css'
 
 function App() {
