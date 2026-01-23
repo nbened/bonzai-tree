@@ -1,15 +1,10 @@
-{
+qq{
   "customChecks": {
-    "requirements": "Remove all console statements"
-  },
-  "autoBurn":{
-    "enabled": true
+    "requirements": "Remove unused imports and variables. Remove all console log statements."
   },
   "eslint": {
     "enabled": true,
-    "rules": [
-      "no-unused-vars"
-    ]
+    "rules": ["no-unused-vars"]
   },
   "typescript": {
     "enabled": true
@@ -25,7 +20,7 @@
     "prompt": "Split any folder with over {{ folderlimit }} items into smaller, compartmentalized folders."
   },
   "testCheck": {
-    "enabled": true,
+    "enabled": false,
     "patterns": {
       ".vue": ".test.js",
       ".jsx": ".test.jsx",
