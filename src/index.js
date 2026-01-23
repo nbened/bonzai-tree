@@ -19,14 +19,21 @@ Options:
   (no option)   Initialize bonzai in current directory
   -b, --burn    Run code analysis (bburn)
   -g, --graph   Launch visualization server (bgraph)
-  -h, --hook    Install Claude Code stop hook (bhook)
+  -h, --hook    Manage Claude Code stop hook (bhook)
   --help        Show this help message
+
+Hook subcommands (-h):
+  -h            Install hook (default)
+  -h -i         Install hook
+  -h -s         Show hook status
+  -h -u         Uninstall hook
 
 Examples:
   npx bonzai-burn          # Initialize bonzai folder
   npx bonzai-burn -b       # Run burn analysis
   npx bonzai-burn -g       # Start graph server
   npx bonzai-burn -h       # Install hook
+  npx bonzai-burn -h -s    # Check hook status
 `);
 }
 
@@ -72,7 +79,9 @@ async function main() {
     case '-h':
     case '--hook': {
       const { main: hookMain } = await import('./bhook.js');
-      if (hookMain) await hookMain();
+      // Pass remaining args as subcommands (e.g., -h -s → ['-s'])
+      const subArgs = args.slice(1);
+      if (hookMain) await hookMain(subArgs);
       break;
     }
     case '--help':

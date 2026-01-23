@@ -152,19 +152,23 @@ function showStatus() {
   }
 }
 
-async function main() {
-  const args = process.argv.slice(2);
+async function main(subArgs = []) {
+  // Use passed args or fall back to process.argv
+  const args = subArgs.length > 0 ? subArgs : process.argv.slice(2);
   const command = args[0];
 
   switch (command) {
     case 'uninstall':
     case 'remove':
+    case '-u':
       uninstallHook();
       break;
     case 'status':
+    case '-s':
       showStatus();
       break;
     case 'install':
+    case '-i':
     default:
       // Default action is to install (like bburn runs analysis by default)
       installHook();
