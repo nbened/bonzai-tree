@@ -1,6 +1,9 @@
 # Dev Guide
 
 ## Test locally
+npm cache clean --force
+rm -rf bonzai                                    
+npx bonzai-burn@latest
 
 
 
