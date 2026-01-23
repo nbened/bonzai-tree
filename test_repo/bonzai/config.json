@@ -4,13 +4,15 @@
   },
   "eslint": {
     "enabled": true,
-    "rules": ["no-unused-vars"]
+    "rules": [
+      "no-unused-vars"
+    ]
   },
   "typescript": {
-    "enabled": true
+    "enabled": false
   },
   "lineLimit": {
-    "enabled": true,
+    "enabled": false,
     "limit": 300,
     "prompt": "Split any file with over {{ linelimit }} lines into smaller files."
   },
