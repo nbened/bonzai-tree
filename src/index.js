@@ -19,11 +19,16 @@ function init() {
   }
 
   mkdirSync(bonzaiPath, { recursive: true });
-  copyFileSync(join(TEMPLATE_DIR, 'specs.md'), join(bonzaiPath, 'specs.md'));
   copyFileSync(join(TEMPLATE_DIR, 'config.json'), join(bonzaiPath, 'config.json'));
-  console.log(`📁 Created ${BONZAI_DIR}/ folder with specs.md and config.json`);
-  console.log(`📝 Edit ${BONZAI_DIR}/specs.md to define your cleanup rules`);
-  console.log(`🔥 Run 'bburn' to start a burn session`);
+  console.log(`📁 Created ${BONZAI_DIR}/ folder with config.json`);
+  console.log(`📝 Edit ${BONZAI_DIR}/config.json to configure your burn rules`);
+  console.log(`🔥 Run 'bburn' to analyze your codebase`);
+  console.log('');
+  console.log('┌─────────────────────────────────────────────────────────────┐');
+  console.log('│                                                             │');
+  console.log('│   🌳 Run `bgraph` to configure provider, frequency & more   │');
+  console.log('│                                                             │');
+  console.log('└─────────────────────────────────────────────────────────────┘');
 }
 
 init();

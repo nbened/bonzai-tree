@@ -13,6 +13,8 @@ const deleteHandler = require('./handlers/delete');
 const openCursorHandler = require('./handlers/open-cursor');
 const shutdownHandler = require('./handlers/shutdown');
 const scanCodeQualityHandler = require('./handlers/scan_code_quality');
+const writeHandler = require('./handlers/write');
+const { listBurns, checkoutBranch } = require('./handlers/git');
 const { terminalHandler, setupTerminalWebSocket } = require('./handlers/terminal');
 
 const app = express();
@@ -33,6 +35,9 @@ app.post('/delete', deleteHandler);
 app.post('/open-cursor', openCursorHandler);
 app.post('/shutdown', shutdownHandler);
 app.post('/scan_code_quality', scanCodeQualityHandler);
+app.post('/write', writeHandler);
+app.get('/git/burns', listBurns);
+app.post('/git/checkout', checkoutBranch);
 app.get('/terminal', terminalHandler);
 
 const port = 3001;

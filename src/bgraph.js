@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Template folder in the package
-const TEMPLATE_DIR = path.join(__dirname, '..', 'payload-bonzai', 'graph-templates');
+const TEMPLATE_DIR = path.join(__dirname, '..', 'graph-templates');
 
 // Helper function to recursively copy directory
 function copyDirectory(src, dest) {

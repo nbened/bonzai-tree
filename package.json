@@ -1,16 +1,13 @@
 {
   "name": "bonzai-burn",
-  "version": "1.0.19",
+  "version": "1.0.26",
   "description": "Git branch-based cleanup tool with bburn, baccept, and brevert commands",
   "type": "module",
   "main": "src/index.js",
   "bin": {
     "bonzai-burn": "./src/index.js",
     "bburn": "./src/bburn.js",
-    "baccept": "./src/baccept.js",
-    "brevert": "./src/brevert.js",
-    "bgraph": "./src/bgraph.js",
-    "bonzai-mcp": "./src/mcp-server.js"
+    "bgraph": "./src/bgraph.js"
   },
   "keywords": [
     "git",
@@ -23,7 +20,8 @@
   },
   "files": [
     "src",
-    "payload-bonzai"
+    "payload-bonzai",
+    "graph-templates"
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.3"
