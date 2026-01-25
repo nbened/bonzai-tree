@@ -23,7 +23,7 @@ var init_loops_config = __esm({
       staging: ["burn", "visualization"],
       prod: ["burn", "visualization"]
     };
-    channel = "dev";
+    channel = "prod";
     ENABLED_LOOPS = CHANNELS[channel] || CHANNELS.prod;
   }
 });
