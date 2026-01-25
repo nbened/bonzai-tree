@@ -3,8 +3,8 @@
 // dev=dev, beta=staging, stable=prod
 export const CHANNELS = {
   dev: ['burn', 'visualization', 'backend'],
-  staging: ['burn', 'visualization'],
-  prod: ['burn', 'visualization']
+  staging: ['burn', 'visualization', 'backend'],
+  prod: ['burn', 'visualization', 'backend']
 }
 
 const channel = process.env.RELEASE_CHANNEL || 'dev'
