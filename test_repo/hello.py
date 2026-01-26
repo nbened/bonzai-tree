@@ -1,7 +1,16 @@
 import sys
 import json
+import subprocess
 
-issues = ["Issue 1", "Issue 2"]
+# Run bonzai-burn and capture output
+result = subprocess.run(
+    ["npx", "bonzai-burn", "-b"],
+    capture_output=True,
+    text=True
+)
+
+# Parse issues from output (non-empty lines)
+issues = [line.strip() for line in result.stdout.strip().split('\n') if line.strip()]
 
 if issues:
     response = {
