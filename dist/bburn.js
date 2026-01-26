@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'fs';
 import { join } from 'path';
+import { spawn } from 'child_process';
 import { analyze, formatAnalysisResults } from './analyzer.js';
 
 const BONZAI_DIR = 'bonzai';
@@ -29,7 +30,7 @@ function loadConfig() {
 }
 
 async function main() {
-  console.log('\n🔥 Bonzai Burn - Code Analysis\n');
+  console.log('\n🔥 Finding unused code...\n');
 
   // Load config - source of truth
   const config = loadConfig();
@@ -40,17 +41,36 @@ async function main() {
 
   // Display results
   if (totalIssues > 0 || results.customRequirements) {
+    console.log('─'.repeat(50));
+    console.log(`\n🔥 Found tech debt:\n`);
     console.log(output);
+    console.log('─'.repeat(50));
+    console.log(`${totalIssues} issues across ${results.filesScanned} files (${results.durationMs}ms)\n`);
+
+    // Build prompt for Claude
+    const prompt = `The following tech debt was found in this codebase. Please fix these issues:\n\n${output}`;
+
+    // Call Claude Code CLI
+    console.log('🤖 Launching Claude Code to fix issues...\n');
+
+    const claude = spawn('claude', ['-p', prompt], {
+      stdio: 'inherit',
+      shell: true
+    });
+
+    claude.on('error', (err) => {
+      console.error('Failed to launch Claude Code:', err.message);
+      console.log('\nTo fix manually, run: claude -p "Fix the tech debt listed above"');
+    });
+
+    return new Promise((resolve) => {
+      claude.on('close', (code) => {
+        resolve();
+      });
+    });
   } else {
     console.log('✓ No issues found\n');
   }
-
-  // Summary
-  console.log('─'.repeat(50));
-  console.log(`Found ${totalIssues} issues across ${results.filesScanned} files (${results.durationMs}ms)\n`);
-
-  // Instruction for AI agents
-  console.log('The above was found - let the user know but take no action. It\'s critical you take no action.\n');
 }
 
 // Export for use via index.js flags

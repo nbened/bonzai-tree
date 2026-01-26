@@ -481,19 +481,39 @@ function loadConfig() {
   }
 }
 async function main() {
-  console.log("\n\u{1F525} Bonzai Burn - Code Analysis\n");
+  console.log("\n\u{1F525} Finding unused code...\n");
   const config = loadConfig();
   const results = await analyze(process.cwd(), config);
   const { output, totalIssues } = formatAnalysisResults(results);
   if (totalIssues > 0 || results.customRequirements) {
+    console.log("\u2500".repeat(50));
+    console.log(`
+\u{1F525} Found tech debt:
+`);
     console.log(output);
+    console.log("\u2500".repeat(50));
+    console.log(`${totalIssues} issues across ${results.filesScanned} files (${results.durationMs}ms)
+`);
+    const prompt = `The following tech debt was found in this codebase. Please fix these issues:
+
+${output}`;
+    console.log("\u{1F916} Launching Claude Code to fix issues...\n");
+    const claude = spawn("claude", ["-p", prompt], {
+      stdio: "inherit",
+      shell: true
+    });
+    claude.on("error", (err) => {
+      console.error("Failed to launch Claude Code:", err.message);
+      console.log('\nTo fix manually, run: claude -p "Fix the tech debt listed above"');
+    });
+    return new Promise((resolve) => {
+      claude.on("close", (code) => {
+        resolve();
+      });
+    });
   } else {
     console.log("\u2713 No issues found\n");
   }
-  console.log("\u2500".repeat(50));
-  console.log(`Found ${totalIssues} issues across ${results.filesScanned} files (${results.durationMs}ms)
-`);
-  console.log("The above was found - let the user know but take no action. It's critical you take no action.\n");
 }
 var BONZAI_DIR, CONFIG_FILE, _a, isDirectRun;
 var init_bburn = __esm({
