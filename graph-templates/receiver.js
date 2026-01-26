@@ -31,11 +31,9 @@ function tryLoad(name) {
 // Visualization loop handlers
 const listHandler = tryLoad('list');
 const readHandler = tryLoad('read');
-const scanCodeQualityHandler = tryLoad('scan_code_quality');
 
 if (listHandler) app.get('/list', listHandler);
 if (readHandler) app.get('/read', readHandler);
-if (scanCodeQualityHandler) app.post('/scan_code_quality', scanCodeQualityHandler);
 
 // Backend loop handlers
 const deleteHandler = tryLoad('delete');

@@ -8,7 +8,6 @@ function indexHandler(req, res) {
       'POST /delete': 'Delete file or directory (body: {path})',
       'POST /open-cursor': 'Open Cursor (body: {path, line?})',
       'POST /shutdown': 'Gracefully shutdown the server',
-      'POST /scan_code_quality': 'Scan code quality (body: {projectPath})',
       'POST /write': 'Write file content (body: {path, content})',
       'GET /git/burns': 'List all bonzai-burn branches',
       'POST /git/checkout': 'Checkout a branch (body: {branchName})',
