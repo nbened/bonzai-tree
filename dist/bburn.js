@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'fs';
 import { join } from 'path';
+import { execSync } from 'child_process';
 import { analyze, formatAnalysisResults } from './analyzer.js';
 
 const BONZAI_DIR = 'bonzai';
@@ -46,7 +47,13 @@ async function main() {
     console.log('─'.repeat(50));
     console.log(`${totalIssues} issues across ${results.filesScanned} files (${results.durationMs}ms)\n`);
 
-    console.log('Copy the above and give to Claude.\n');
+    // Copy to clipboard
+    try {
+      execSync('pbcopy', { input: output });
+      console.log('issues copied to clipboard - run claude to install\n');
+    } catch {
+      console.log('Copy the above and give to Claude.\n');
+    }
   } else {
     console.log('✓ No issues found\n');
   }

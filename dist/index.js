@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { spawn, exec, execSync } from 'child_process';
+import { execSync, spawn, exec } from 'child_process';
 import fs4, { existsSync, mkdirSync, copyFileSync } from 'fs';
 import path2, { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -494,7 +494,12 @@ async function main() {
     console.log("\u2500".repeat(50));
     console.log(`${totalIssues} issues across ${results.filesScanned} files (${results.durationMs}ms)
 `);
-    console.log("Copy the above and give to Claude.\n");
+    try {
+      execSync("pbcopy", { input: output });
+      console.log("issues copied to clipboard - run claude to install\n");
+    } catch {
+      console.log("Copy the above and give to Claude.\n");
+    }
   } else {
     console.log("\u2713 No issues found\n");
   }
