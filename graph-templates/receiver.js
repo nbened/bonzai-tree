@@ -14,7 +14,8 @@ app.use(express.json());
 
 // Root route
 app.get('/', (req, res) => {
-  res.json({ message: 'Bonzai Server', status: 'running' });
+  const repoName = path.basename(process.env.BONZAI_REPO_DIR || process.cwd());
+  res.json({ message: 'Bonzai Server', status: 'running', repoName });
 });
 
 // Dynamically load handlers based on what exists
