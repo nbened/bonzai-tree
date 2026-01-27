@@ -21,7 +21,7 @@ Options:
   --help        Show this help message`;
 
   if (ENABLED_LOOPS.includes('visualization') || ENABLED_LOOPS.includes('backend')) {
-    help = help.replace('--help', '-c, --config  Launch visualization server\n  --help');
+    help = help.replace('--help', '-g, --graph   Launch visualization server\n  --help');
   }
 
   console.log(help);
@@ -41,10 +41,9 @@ function init() {
   console.log(`Created ${BONZAI_DIR}/ folder with config.json`);
   console.log(`Edit ${BONZAI_DIR}/config.json to configure your burn rules`);
   console.log('');
-  console.log('  ┌─────────────────────────────────────────────────────────┐');
-  console.log('  │  npx bonzai-burn -c   Configure burn rules              │');
-  console.log('  │  npx bonzai-burn -b   Find tech debt in codebase        │');
-  console.log('  └─────────────────────────────────────────────────────────┘');
+  console.log('  ┌───────────────────────────────────────────────────────┐');
+  console.log('  │  npx bonzai-burn -g   Launch dependency graph        │');
+  console.log('  └───────────────────────────────────────────────────────┘');
 }
 
 async function main() {
@@ -65,7 +64,7 @@ async function main() {
 
   // Visualization/Backend loop (server)
   if (ENABLED_LOOPS.includes('visualization') || ENABLED_LOOPS.includes('backend')) {
-    if (flag === '-c' || flag === '--config') {
+    if (flag === '-g' || flag === '--graph') {
       const { main: configMain } = await import('./bconfig.js');
       return configMain?.();
     }
