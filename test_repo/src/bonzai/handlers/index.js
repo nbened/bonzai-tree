@@ -8,7 +8,6 @@ function indexHandler(req, res) {
       'POST /delete': 'Delete file or directory (body: {path})',
       'POST /open-cursor': 'Open Cursor (body: {path, line?})',
       'POST /shutdown': 'Gracefully shutdown the server',
-      'POST /scan_code_quality': 'Scan code quality (body: {projectPath})',
       'WS /terminal': 'Interactive terminal via WebSocket'
     },
     example: 'Try: /list or /read?path=README.md'

@@ -1,40 +1,25 @@
 # Dev Guide
 
-## Test locally
+### Running (commonality)
 npm cache clean --force
-rm -rf bonzai                                    
+rm -rf bonzai    
+
+# Dev
+### Pushing
+npm version patch
+npm publish --tag dev 
+### Running
+npx bonzai-burn@dev
+
+# Staging
+### Pushing
+npm version patch
+npm publish --tag staging 
+### Running
+npx bonzai-burn@staging
+
+# Prod 
+npm version patch
+npm publish 
+### Running
 npx bonzai-burn@latest
-
-
-
-## Test in another repo
-
-rm -rf bonzai/                                             
-npx bonzai-burn@latest
-
-
-th
-
-
-```bash
-node src/bburn.js
-node src/baccept.js
-node src/brevert.js
-```
-
-Or link globally:
-
-```bash
-npm link
-bburn
-baccept
-brevert
-```
-
-## Publish new version
-
-```bash
-npm login
-npm version patch  # pumps version number automatically
-npm publish
-```

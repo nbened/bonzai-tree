@@ -3,45 +3,57 @@
 const express = require('./node_modules/express');
 const cors = require('./node_modules/cors');
 const http = require('http');
-const { WebSocketServer } = require('./node_modules/ws');
-
-// Import handlers
-const indexHandler = require('./handlers/index');
-const listHandler = require('./handlers/list');
-const readHandler = require('./handlers/read');
-const deleteHandler = require('./handlers/delete');
-const openCursorHandler = require('./handlers/open-cursor');
-const shutdownHandler = require('./handlers/shutdown');
-const scanCodeQualityHandler = require('./handlers/scan_code_quality');
-const writeHandler = require('./handlers/write');
-const { listBurns, checkoutBranch } = require('./handlers/git');
-const { terminalHandler, setupTerminalWebSocket } = require('./handlers/terminal');
+const fs = require('fs');
+const path = require('path');
+const { ROOT } = require('./config');
 
 const app = express();
 const server = http.createServer(app);
 
-// WebSocket server for terminal
-const wss = new WebSocketServer({ server, path: '/terminal' });
-setupTerminalWebSocket(wss);
-
 app.use(cors());
 app.use(express.json());
 
-// Register routes
-app.get('/', indexHandler);
-app.get('/list', listHandler);
-app.get('/read', readHandler);
-app.post('/delete', deleteHandler);
-app.post('/open-cursor', openCursorHandler);
-app.post('/shutdown', shutdownHandler);
-app.post('/scan_code_quality', scanCodeQualityHandler);
-app.post('/write', writeHandler);
-app.get('/git/burns', listBurns);
-app.post('/git/checkout', checkoutBranch);
-app.get('/terminal', terminalHandler);
+// Root route
+app.get('/', (req, res) => {
+  const repoName = path.basename(ROOT);
+  res.json({ message: 'Bonzai Server', status: 'running', repoName });
+});
+
+// Dynamically load handlers based on what exists
+const handlersDir = path.join(__dirname, 'handlers');
+
+function tryLoad(name) {
+  const filePath = path.join(handlersDir, name + '.js');
+  if (fs.existsSync(filePath)) {
+    return require(filePath);
+  }
+  return null;
+}
+
+// Visualization loop handlers
+const listHandler = tryLoad('list');
+const readHandler = tryLoad('read');
+
+if (listHandler) app.get('/list', listHandler);
+if (readHandler) app.get('/read', readHandler);
+
+// Backend loop handlers
+const deleteHandler = tryLoad('delete');
+const writeHandler = tryLoad('write');
+const shutdownHandler = tryLoad('shutdown');
+const terminalHandlers = tryLoad('terminal');
+
+if (deleteHandler) app.post('/delete', deleteHandler);
+if (writeHandler) app.post('/write', writeHandler);
+if (shutdownHandler) app.post('/shutdown', shutdownHandler);
+if (terminalHandlers) {
+  const { WebSocketServer } = require('./node_modules/ws');
+  const wss = new WebSocketServer({ server, path: '/terminal' });
+  terminalHandlers.setupTerminalWebSocket(wss);
+  app.get('/terminal', terminalHandlers.terminalHandler);
+}
 
 const port = 3001;
 server.listen(port, () => {
-  console.log('📂 File server running on http://localhost:' + port);
-  console.log('🖥️  Terminal WebSocket available at ws://localhost:' + port + '/terminal');
+  console.log('File server running on http://localhost:' + port);
 });

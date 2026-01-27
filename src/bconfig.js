@@ -3,12 +3,13 @@ import fs from 'fs';
 import path from 'path';
 import { spawn, exec } from 'child_process';
 import { fileURLToPath } from 'url';
+import { ENABLED_LOOPS } from './loops.config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Template folder in the package
-const TEMPLATE_DIR = path.join(__dirname, '..', 'graph-templates');
+const TEMPLATE_DIR = path.join(__dirname, 'graph-templates');
 
 // Helper function to recursively copy directory
 function copyDirectory(src, dest) {
@@ -53,11 +54,32 @@ async function main() {
   const configContent = fs.readFileSync(path.join(TEMPLATE_DIR, 'config.js'), 'utf8');
   fs.writeFileSync(path.join(bonzaiDir, 'config.js'), configContent);
 
-  // Copy handlers directory
+  // Copy handlers from enabled loops
   console.log('Copying handlers...');
-  const handlersSrc = path.join(TEMPLATE_DIR, 'handlers');
   const handlersDest = path.join(bonzaiDir, 'handlers');
-  copyDirectory(handlersSrc, handlersDest);
+  if (!fs.existsSync(handlersDest)) {
+    fs.mkdirSync(handlersDest, { recursive: true });
+  }
+
+  // Copy visualization loop handlers
+  if (ENABLED_LOOPS.includes('visualization')) {
+    const vizSrc = path.join(TEMPLATE_DIR, 'loops', 'visualization');
+    if (fs.existsSync(vizSrc)) {
+      for (const file of fs.readdirSync(vizSrc)) {
+        fs.copyFileSync(path.join(vizSrc, file), path.join(handlersDest, file));
+      }
+    }
+  }
+
+  // Copy backend loop handlers
+  if (ENABLED_LOOPS.includes('backend')) {
+    const backendSrc = path.join(TEMPLATE_DIR, 'loops', 'backend');
+    if (fs.existsSync(backendSrc)) {
+      for (const file of fs.readdirSync(backendSrc)) {
+        fs.copyFileSync(path.join(backendSrc, file), path.join(handlersDest, file));
+      }
+    }
+  }
 
   // Copy utils directory
   console.log('Copying utils...');
@@ -143,7 +165,7 @@ async function main() {
         console.log('All code stays on your machine\n');
         console.log('Relay server running on localhost:3001');
         console.log('Terminal WebSocket available at ws://localhost:3001/terminal');
-        console.log('Diagram available at https://bonzai.dev/\n');
+        console.log('Diagram available at https://bonzai.dev/visualize\n');
 
         // Start the server automatically
         const server = spawn('node', ['receiver.js'], {
@@ -156,7 +178,7 @@ async function main() {
         });
 
         // Open browser automatically
-        exec('open https://bonzai.dev/');
+        exec('open https://bonzai.dev/visualize');
 
         // Handle server process
         server.on('close', (serverCode) => {
