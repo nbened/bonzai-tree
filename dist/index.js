@@ -854,7 +854,7 @@ Options:
   -h, --hook    Manage Claude Code stop hook
   --help        Show this help message`;
   if (ENABLED_LOOPS.includes("visualization") || ENABLED_LOOPS.includes("backend")) {
-    help = help.replace("--help", "-c, --config  Launch visualization server\n  --help");
+    help = help.replace("--help", "-g, --graph   Launch visualization server\n  --help");
   }
   console.log(help);
 }
@@ -870,10 +870,9 @@ function init() {
   console.log(`Created ${BONZAI_DIR3}/ folder with config.json`);
   console.log(`Edit ${BONZAI_DIR3}/config.json to configure your burn rules`);
   console.log("");
-  console.log("  \u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510");
-  console.log("  \u2502  npx bonzai-burn -c   Configure burn rules              \u2502");
-  console.log("  \u2502  npx bonzai-burn -b   Find tech debt in codebase        \u2502");
-  console.log("  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518");
+  console.log("  \u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510");
+  console.log("  \u2502  npx bonzai-burn -g   Launch dependency graph        \u2502");
+  console.log("  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518");
 }
 async function main4() {
   const args = process.argv.slice(2);
@@ -889,7 +888,7 @@ async function main4() {
     }
   }
   if (ENABLED_LOOPS.includes("visualization") || ENABLED_LOOPS.includes("backend")) {
-    if (flag === "-c" || flag === "--config") {
+    if (flag === "-g" || flag === "--graph") {
       const { main: configMain } = await Promise.resolve().then(() => (init_bconfig(), bconfig_exports));
       return configMain == null ? void 0 : configMain();
     }
