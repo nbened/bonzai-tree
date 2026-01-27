@@ -869,7 +869,10 @@ function init() {
   copyFileSync(join(TEMPLATE_DIR2, "config.json"), join(bonzaiPath, "config.json"));
   console.log(`Created ${BONZAI_DIR3}/ folder with config.json`);
   console.log(`Edit ${BONZAI_DIR3}/config.json to configure your burn rules`);
-  console.log(`Run 'npx bonzai-burn -b' to analyze your codebase`);
+  console.log("");
+  console.log(" --------------------------------------------------------");
+  console.log("|  Run npx bonzai-burn -b to find tech debt in codebase  |");
+  console.log(" --------------------------------------------------------");
 }
 async function main4() {
   const args = process.argv.slice(2);
