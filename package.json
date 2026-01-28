@@ -1,11 +1,11 @@
 {
-  "name": "bonzai-burn",
+  "name": "bonzai-tools",
   "version": "1.0.91",
   "description": "Visualization and file management tools for codebases",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "bonzai-burn": "./dist/index.js"
+    "bonzai-tools": "./dist/index.js"
   },
   "scripts": {
     "dev": "RELEASE_CHANNEL=dev node src/index.js",

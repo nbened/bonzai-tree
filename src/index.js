@@ -12,7 +12,7 @@ const TEMPLATE_DIR = join(__dirname, 'payload-bonzai');
 
 function showHelp() {
   let help = `
-Usage: npx bonzai-burn [option]
+Usage: npx bonzai-tools [option]
 
 Options:
   (no option)   Initialize bonzai in current directory
@@ -39,7 +39,7 @@ function init() {
   console.log(`Created ${BONZAI_DIR}/ folder with config.json`);
   console.log('');
   console.log('  ┌───────────────────────────────────────────────────────┐');
-  console.log('  │  npx bonzai-burn -g   Launch visualization server    │');
+  console.log('  │  npx bonzai-tools -g   Launch visualization server   │');
   console.log('  └───────────────────────────────────────────────────────┘');
 }
 

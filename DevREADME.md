@@ -9,17 +9,17 @@ rm -rf bonzai
 npm version patch
 npm publish --tag dev 
 ### Running
-npx bonzai-burn@dev
+npx bonzai-tools@dev
 
 # Staging
 ### Pushing
 npm version patch
 npm publish --tag staging 
 ### Running
-npx bonzai-burn@staging
+npx bonzai-tools@staging
 
 # Prod 
 npm version patch
 npm publish 
 ### Running
-npx bonzai-burn@latest
+npx bonzai-tools@latest
