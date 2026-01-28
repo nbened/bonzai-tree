@@ -163,9 +163,9 @@ async function main() {
 
         console.log('\nListener endpoints successfully deployed');
         console.log('All code stays on your machine\n');
-        console.log('Relay server running on localhost:3001');
-        console.log('Terminal WebSocket available at ws://localhost:3001/terminal');
-        console.log('App available at http://localhost:3001\n');
+        console.log('Relay server running on localhost:6767');
+        console.log('Terminal WebSocket available at ws://localhost:6767/terminal');
+        console.log('App available at http://localhost:6767\n');
 
         // Start the server automatically
         const server = spawn('node', ['receiver.js'], {
@@ -178,7 +178,7 @@ async function main() {
         });
 
         // Open browser automatically
-        exec('open http://localhost:3001/visualize?ref=btools');
+        exec('open http://localhost:6767/visualize?ref=btools');
 
         // Handle server process
         server.on('close', (serverCode) => {
