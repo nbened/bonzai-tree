@@ -36,6 +36,11 @@ export default defineConfig({
       fs.copyFileSync('graph-templates/ignore.txt', 'dist/graph-templates/ignore.txt')
       fs.cpSync('graph-templates/utils', 'dist/graph-templates/utils', { recursive: true })
 
+      // Copy frontend build
+      if (fs.existsSync('graph-templates/build')) {
+        fs.cpSync('graph-templates/build', 'dist/graph-templates/build', { recursive: true })
+      }
+
       fs.mkdirSync('dist/graph-templates/loops', { recursive: true })
 
       if (hasVisualization) {
