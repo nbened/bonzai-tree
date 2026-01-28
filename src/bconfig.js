@@ -87,14 +87,6 @@ async function main() {
   const utilsDest = path.join(bonzaiDir, 'utils');
   copyDirectory(utilsSrc, utilsDest);
 
-  // Copy frontend build
-  const buildSrc = path.join(TEMPLATE_DIR, 'build');
-  if (fs.existsSync(buildSrc)) {
-    console.log('Copying frontend build...');
-    const buildDest = path.join(bonzaiDir, 'build');
-    copyDirectory(buildSrc, buildDest);
-  }
-
   // Write .ignore file in bonzai directory
   const ignoreTargetPath = path.join(bonzaiDir, '.ignore');
   if (!fs.existsSync(ignoreTargetPath)) {
