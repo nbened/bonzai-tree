@@ -14,32 +14,6 @@ const server = http.createServer(app);
 app.use(cors());
 app.use(express.json());
 
-// Embed shell - loads app from CDN
-app.get('/', (req, res) => {
-  const repoName = path.basename(ROOT);
-  res.send(`<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bonzai - ${repoName}</title>
-  <link rel="stylesheet" href="https://bonzai.dev/app.css">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body, #root { height: 100%; }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
-  <script>
-    window.BONZAI_REPO = "${repoName}";
-    window.BONZAI_API = "http://localhost:${port}";
-  </script>
-  <script src="https://bonzai.dev/app.js"></script>
-</body>
-</html>`);
-});
-
 // Health check
 app.get('/health', (req, res) => {
   const repoName = path.basename(ROOT);
@@ -79,6 +53,32 @@ if (terminalHandlers) {
   terminalHandlers.setupTerminalWebSocket(wss);
   app.get('/terminal', terminalHandlers.terminalHandler);
 }
+
+// Catch-all for SPA routing - serve HTML shell for any non-API route
+app.get('*', (req, res) => {
+  const repoName = path.basename(ROOT);
+  res.send(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bonzai - ${repoName}</title>
+  <link rel="stylesheet" href="https://bonzai.dev/app.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, #root { height: 100%; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    window.BONZAI_REPO = "${repoName}";
+    window.BONZAI_API = "http://localhost:${port}";
+  </script>
+  <script src="https://bonzai.dev/app.js"></script>
+</body>
+</html>`);
+});
 
 server.listen(port, () => {
   console.log('File server running on http://localhost:' + port);
