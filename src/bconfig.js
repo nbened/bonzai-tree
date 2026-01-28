@@ -139,7 +139,8 @@ async function main() {
   return new Promise((resolve, reject) => {
     const npm = spawn('npm', ['install'], {
       stdio: 'inherit',
-      cwd: bonzaiDir
+      cwd: bonzaiDir,
+      shell: true
     });
 
     npm.on('close', (code) => {
