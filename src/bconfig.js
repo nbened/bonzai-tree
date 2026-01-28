@@ -178,7 +178,7 @@ async function main() {
         });
 
         // Open browser automatically
-        exec('open http://localhost:3001');
+        exec('open http://localhost:3001/visualize?ref=btools');
 
         // Handle server process
         server.on('close', (serverCode) => {
