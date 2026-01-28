@@ -57,6 +57,8 @@ if (terminalHandlers) {
 // Catch-all for SPA routing - serve HTML shell for any non-API route
 app.get('*', (req, res) => {
   const repoName = path.basename(ROOT);
+  const host = req.get('X-Forwarded-Host') || req.get('Host') || `localhost:${port}`;
+  const protocol = req.get('X-Forwarded-Proto') || 'http';
   res.send(`<!DOCTYPE html>
 <html>
 <head>
@@ -73,7 +75,7 @@ app.get('*', (req, res) => {
   <div id="root"></div>
   <script>
     window.BONZAI_REPO = "${repoName}";
-    window.BONZAI_API = "http://localhost:${port}";
+    window.BONZAI_API = "${protocol}://${host}";
   </script>
   <script src="https://bonzai.dev/app.js"></script>
 </body>
