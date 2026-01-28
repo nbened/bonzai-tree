@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "bonzai-burn": "file:..",
+    "bonzai-tree": "file:..",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

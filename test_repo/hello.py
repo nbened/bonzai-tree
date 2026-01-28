@@ -2,9 +2,9 @@ import sys
 import json
 import subprocess
 
-# Run bonzai-burn and capture output
+# Run bonzai-tree and capture output
 result = subprocess.run(
-    ["npx", "bonzai-burn@dev", "-b"],
+    ["npx", "bonzai-tree@dev", "-b"],
     capture_output=True,
     text=True
 )
