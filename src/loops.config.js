@@ -2,9 +2,9 @@
 // Tree-shaking removes disabled loops from the bundle
 // dev=dev, beta=staging, stable=prod
 export const CHANNELS = {
-  dev: ['visualization', 'backend'],
-  staging: ['visualization', 'backend'],
-  prod: ['visualization', 'backend']
+  dev: ['visualization', 'readwrite', 'backend'],
+  staging: ['visualization', 'readwrite', 'backend'],
+  prod: ['visualization', 'readwrite', 'backend']
 }
 
 const channel = process.env.RELEASE_CHANNEL || 'dev'

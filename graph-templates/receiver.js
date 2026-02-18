@@ -38,6 +38,11 @@ const readHandler = tryLoad('read');
 if (listHandler) app.get('/list', listHandler);
 if (readHandler) app.get('/read', readHandler);
 
+// Readwrite loop handlers
+const detectClaudeHandler = tryLoad('detect-claude');
+
+if (detectClaudeHandler) app.get('/detect-claude', detectClaudeHandler);
+
 // Backend loop handlers
 const deleteHandler = tryLoad('delete');
 const writeHandler = tryLoad('write');

@@ -71,6 +71,16 @@ async function main() {
     }
   }
 
+  // Copy readwrite loop handlers
+  if (ENABLED_LOOPS.includes('readwrite')) {
+    const readwriteSrc = path.join(TEMPLATE_DIR, 'loops', 'readwrite');
+    if (fs.existsSync(readwriteSrc)) {
+      for (const file of fs.readdirSync(readwriteSrc)) {
+        fs.copyFileSync(path.join(readwriteSrc, file), path.join(handlersDest, file));
+      }
+    }
+  }
+
   // Copy backend loop handlers
   if (ENABLED_LOOPS.includes('backend')) {
     const backendSrc = path.join(TEMPLATE_DIR, 'loops', 'backend');
