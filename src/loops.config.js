@@ -4,7 +4,7 @@
 export const CHANNELS = {
   dev: ['readwrite', 'backend'],
   staging: ['readwrite', 'backend'],
-  prod: ['readwrite']
+  prod: ['readwrite', 'backend']
 }
 
 const channel = process.env.RELEASE_CHANNEL || 'dev'
