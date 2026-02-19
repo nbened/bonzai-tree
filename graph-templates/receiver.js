@@ -31,26 +31,25 @@ function tryLoad(name) {
   return null;
 }
 
-// Visualization loop handlers
+// Visualization loop handlers (legacy, now part of readwrite)
+
+// Readwrite loop handlers
 const listHandler = tryLoad('list');
 const readHandler = tryLoad('read');
+const detectClaudeHandler = tryLoad('detect-claude');
+const deleteHandler = tryLoad('delete');
+const writeHandler = tryLoad('write');
 
 if (listHandler) app.get('/list', listHandler);
 if (readHandler) app.get('/read', readHandler);
-
-// Readwrite loop handlers
-const detectClaudeHandler = tryLoad('detect-claude');
-
 if (detectClaudeHandler) app.get('/detect-claude', detectClaudeHandler);
+if (deleteHandler) app.post('/delete', deleteHandler);
+if (writeHandler) app.post('/write', writeHandler);
 
 // Backend loop handlers
-const deleteHandler = tryLoad('delete');
-const writeHandler = tryLoad('write');
 const shutdownHandler = tryLoad('shutdown');
 const terminalHandlers = tryLoad('terminal');
 
-if (deleteHandler) app.post('/delete', deleteHandler);
-if (writeHandler) app.post('/write', writeHandler);
 if (shutdownHandler) app.post('/shutdown', shutdownHandler);
 if (terminalHandlers) {
   const { WebSocketServer } = require('./node_modules/ws');

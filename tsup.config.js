@@ -22,12 +22,11 @@ export default defineConfig({
     // Copy payload-bonzai (config template)
     fs.cpSync('payload-bonzai', 'dist/payload-bonzai', { recursive: true })
 
-    // Check if any graph-template loops are enabled
-    const hasVisualization = enabledLoops.includes('visualization')
-    const hasReadwrite = enabledLoops.includes('readwrite')
-    const hasBackend = enabledLoops.includes('backend')
+    // Copy graph-templates for enabled loops
+    const loopNames = ['visualization', 'readwrite', 'backend']
+    const activeLoops = loopNames.filter(l => enabledLoops.includes(l))
 
-    if (hasVisualization || hasReadwrite || hasBackend) {
+    if (activeLoops.length > 0) {
       fs.copyFileSync('src/bconfig.js', 'dist/bconfig.js')
 
       // Copy graph-templates base files
@@ -39,16 +38,11 @@ export default defineConfig({
 
       fs.mkdirSync('dist/graph-templates/loops', { recursive: true })
 
-      if (hasVisualization) {
-        fs.cpSync('graph-templates/loops/visualization', 'dist/graph-templates/loops/visualization', { recursive: true })
-      }
-
-      if (hasReadwrite) {
-        fs.cpSync('graph-templates/loops/readwrite', 'dist/graph-templates/loops/readwrite', { recursive: true })
-      }
-
-      if (hasBackend) {
-        fs.cpSync('graph-templates/loops/backend', 'dist/graph-templates/loops/backend', { recursive: true })
+      for (const loop of activeLoops) {
+        const loopDir = `graph-templates/loops/${loop}`
+        if (fs.existsSync(loopDir)) {
+          fs.cpSync(loopDir, `dist/graph-templates/loops/${loop}`, { recursive: true })
+        }
       }
     }
   }

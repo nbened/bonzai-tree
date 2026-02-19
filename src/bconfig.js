@@ -61,32 +61,15 @@ async function main() {
     fs.mkdirSync(handlersDest, { recursive: true });
   }
 
-  // Copy visualization loop handlers
-  if (ENABLED_LOOPS.includes('visualization')) {
-    const vizSrc = path.join(TEMPLATE_DIR, 'loops', 'visualization');
-    if (fs.existsSync(vizSrc)) {
-      for (const file of fs.readdirSync(vizSrc)) {
-        fs.copyFileSync(path.join(vizSrc, file), path.join(handlersDest, file));
-      }
-    }
-  }
-
-  // Copy readwrite loop handlers
-  if (ENABLED_LOOPS.includes('readwrite')) {
-    const readwriteSrc = path.join(TEMPLATE_DIR, 'loops', 'readwrite');
-    if (fs.existsSync(readwriteSrc)) {
-      for (const file of fs.readdirSync(readwriteSrc)) {
-        fs.copyFileSync(path.join(readwriteSrc, file), path.join(handlersDest, file));
-      }
-    }
-  }
-
-  // Copy backend loop handlers
-  if (ENABLED_LOOPS.includes('backend')) {
-    const backendSrc = path.join(TEMPLATE_DIR, 'loops', 'backend');
-    if (fs.existsSync(backendSrc)) {
-      for (const file of fs.readdirSync(backendSrc)) {
-        fs.copyFileSync(path.join(backendSrc, file), path.join(handlersDest, file));
+  // Copy handlers from enabled loops
+  const loopNames = ['visualization', 'readwrite', 'backend'];
+  for (const loop of loopNames) {
+    if (ENABLED_LOOPS.includes(loop)) {
+      const loopSrc = path.join(TEMPLATE_DIR, 'loops', loop);
+      if (fs.existsSync(loopSrc)) {
+        for (const file of fs.readdirSync(loopSrc)) {
+          fs.copyFileSync(path.join(loopSrc, file), path.join(handlersDest, file));
+        }
       }
     }
   }
