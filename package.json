@@ -1,6 +1,6 @@
 {
   "name": "bonzai-tree",
-  "version": "1.0.132",
+  "version": "1.0.133",
   "description": "Visualization and file management tools for codebases",
   "type": "module",
   "main": "dist/index.js",
