@@ -8,27 +8,23 @@ function detectClaudeHandler(req, res) {
     const claudeMdPath = path.join(ROOT, 'CLAUDE.md');
     const claudeMd = fs.existsSync(claudeMdPath) ? 'CLAUDE.md' : null;
 
-    // Scan both .claude/skills/ and .claude/commands/ for .md files
+    // Scan .claude/skills/*/SKILL.md and .claude/commands/*/SKILL.md
     const skills = [];
     const dirs = [
       path.join(ROOT, '.claude', 'skills'),
       path.join(ROOT, '.claude', 'commands'),
     ];
 
-    function scanDir(dir) {
+    for (const dir of dirs) {
+      if (!fs.existsSync(dir)) continue;
       const entries = fs.readdirSync(dir, { withFileTypes: true });
       for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          scanDir(fullPath);
-        } else if (entry.isFile() && entry.name.endsWith('.md')) {
-          skills.push(path.relative(ROOT, fullPath));
+        if (!entry.isDirectory()) continue;
+        const skillMd = path.join(dir, entry.name, 'SKILL.md');
+        if (fs.existsSync(skillMd)) {
+          skills.push(path.relative(ROOT, skillMd));
         }
       }
-    }
-
-    for (const dir of dirs) {
-      if (fs.existsSync(dir)) scanDir(dir);
     }
 
     res.json({ claudeMd, skills });
