@@ -8,6 +8,7 @@ function writeHandler(req, res) {
     if (!filePath.startsWith(ROOT)) {
       return res.status(400).send('Invalid path');
     }
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(filePath, req.body.content, 'utf8');
     res.json({ status: 'ok' });
   } catch (e) {
