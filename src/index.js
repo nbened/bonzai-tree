@@ -11,18 +11,12 @@ const BONZAI_DIR = 'bonzai';
 const TEMPLATE_DIR = join(__dirname, 'payload-bonzai');
 
 function showHelp() {
-  let help = `
+  console.log(`
 Usage: npx bonzai-tree [option]
 
 Options:
-  (no option)   Initialize bonzai in current directory
-  --help        Show this help message`;
-
-  if (ENABLED_LOOPS.includes('visualization') || ENABLED_LOOPS.includes('backend')) {
-    help = help.replace('--help', '-v, --visualize   Launch visualization server\n  --help');
-  }
-
-  console.log(help);
+  (no option)   Initialize and launch bonzai
+  --help        Show this help message`);
 }
 
 function init() {
@@ -37,31 +31,24 @@ function init() {
   mkdirSync(bonzaiPath, { recursive: true });
   copyFileSync(join(TEMPLATE_DIR, 'config.json'), join(bonzaiPath, 'config.json'));
   console.log(`Created ${BONZAI_DIR}/ folder with config.json`);
-  console.log('');
-  console.log('  ┌──────────────────────────────────────────────────────┐');
-  console.log('  │  npx bonzai-tree -v   Launch visualization server   │');
-  console.log('  └──────────────────────────────────────────────────────┘');
 }
 
 async function main() {
   const args = process.argv.slice(2);
   const flag = args[0];
 
-  // Visualization/Backend loop (server)
-  if (ENABLED_LOOPS.includes('visualization') || ENABLED_LOOPS.includes('backend')) {
-    if (flag === '-v' || flag === '--visualize') {
-      const { main: configMain } = await import('./bconfig.js');
-      return configMain?.();
-    }
-  }
-
   if (flag === '--help') {
     showHelp();
     return;
   }
 
-  // Default: init
+  // Init if needed, then launch server
   init();
+
+  if (ENABLED_LOOPS.includes('visualization') || ENABLED_LOOPS.includes('backend')) {
+    const { main: configMain } = await import('./bconfig.js');
+    return configMain?.();
+  }
 }
 
 main().catch((error) => {
