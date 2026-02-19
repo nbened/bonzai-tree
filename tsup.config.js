@@ -24,9 +24,10 @@ export default defineConfig({
 
     // Check if any graph-template loops are enabled
     const hasVisualization = enabledLoops.includes('visualization')
+    const hasReadwrite = enabledLoops.includes('readwrite')
     const hasBackend = enabledLoops.includes('backend')
 
-    if (hasVisualization || hasBackend) {
+    if (hasVisualization || hasReadwrite || hasBackend) {
       fs.copyFileSync('src/bconfig.js', 'dist/bconfig.js')
 
       // Copy graph-templates base files
@@ -40,6 +41,10 @@ export default defineConfig({
 
       if (hasVisualization) {
         fs.cpSync('graph-templates/loops/visualization', 'dist/graph-templates/loops/visualization', { recursive: true })
+      }
+
+      if (hasReadwrite) {
+        fs.cpSync('graph-templates/loops/readwrite', 'dist/graph-templates/loops/readwrite', { recursive: true })
       }
 
       if (hasBackend) {
