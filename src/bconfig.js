@@ -172,7 +172,7 @@ async function main() {
         });
 
         // Open browser automatically
-        exec('open http://localhost:6767/visualize?ref=btools');
+        exec('open http://localhost:6767/canvas?ref=btools');
 
         // Handle server process
         server.on('close', (serverCode) => {

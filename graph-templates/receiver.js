@@ -87,5 +87,5 @@ app.get('*', (req, res) => {
 });
 
 server.listen(port, () => {
-  console.log('File server running on http://localhost:' + port + "/visualize");
+  console.log('File server running on http://localhost:' + port + "/canvas");
 });
